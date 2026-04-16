@@ -116,10 +116,10 @@ jobs:
 
             | Platform | Architecture | File |
             |----------|--------------|------|
-            | macOS | Apple Silicon (M1/M2/M3/M4) | `Pocket-Agent-*-arm64-mac.dmg` |
-            | macOS | Intel | `Pocket-Agent-*-x64-mac.dmg` |
-            | Windows | x64 | `Pocket-Agent-*-x64-setup.exe` |
-            | Windows | ARM64 | `Pocket-Agent-*-arm64-setup.exe` |
+            | macOS | Apple Silicon (M1/M2/M3/M4) | `Neon-Post-*-arm64-mac.dmg` |
+            | macOS | Intel | `Neon-Post-*-x64-mac.dmg` |
+            | Windows | x64 | `Neon-Post-*-x64-setup.exe` |
+            | Windows | ARM64 | `Neon-Post-*-arm64-setup.exe` |
 
             ### Installation
 
