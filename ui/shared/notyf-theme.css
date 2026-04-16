@@ -1,0 +1,25 @@
+.notyf__toast {
+  background: rgba(28, 28, 30, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  min-width: 200px; max-width: 360px;
+  overflow: visible;
+}
+.notyf__toast--success { box-shadow: 0 8px 32px rgba(34, 197, 94, 0.15), 0 0 0 1px rgba(34, 197, 94, 0.2) inset; }
+.notyf__toast--error { box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15), 0 0 0 1px rgba(239, 68, 68, 0.2) inset; }
+.notyf__ripple { display: none; }
+.notyf__wrapper { padding: 14px 18px; display: flex; align-items: center; }
+.notyf__icon { width: 32px; height: 32px; min-width: 32px; border-radius: 10px; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+.notyf__toast--success .notyf__icon { background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(74,222,128,0.1)); }
+.notyf__toast--error .notyf__icon { background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(248,113,113,0.1)); }
+.notyf__message { color: var(--text-primary); line-height: 1.4; }
+.notyf__dismiss { margin-right: 0; }
+.notyf__dismiss-btn { color: var(--text-muted); opacity: 0.6; }
+.notyf__dismiss-btn:hover { opacity: 1; }

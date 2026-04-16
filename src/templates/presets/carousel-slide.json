@@ -1,0 +1,43 @@
+{
+  "id": "carousel-slide",
+  "name": "Carousel Slide",
+  "format": "square",
+  "overlay": {
+    "enabled": true,
+    "color": "#000000",
+    "opacity": 0.6
+  },
+  "text": {
+    "position": "center",
+    "fontFamily": "Anton",
+    "fontSize": 72,
+    "fontWeight": "400",
+    "color": "#ffffff",
+    "strokeColor": "#000000",
+    "strokeWidth": 3,
+    "lineHeight": 1.1,
+    "paddingX": 80,
+    "offsetY": 0,
+    "uppercase": true
+  },
+  "cta": {
+    "enabled": true,
+    "text": "SWIPE →",
+    "position": "bottom-right",
+    "backgroundColor": "#d42918",
+    "textColor": "#ffffff",
+    "fontSize": 13,
+    "borderRadius": 14,
+    "paddingX": 16,
+    "paddingY": 7,
+    "margin": 30
+  },
+  "watermark": {
+    "enabled": true,
+    "position": "bottom-left",
+    "opacity": 0.5,
+    "maxWidth": 150,
+    "maxHeight": 45,
+    "margin": 24
+  }
+}

@@ -1,0 +1,59 @@
+:root {
+  --bg-primary: #0a0a0b;
+  --bg-secondary: #141415;
+  --bg-tertiary: #1c1c1e;
+  --border: #2a2a2d;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1a6;
+  --text-muted: #636366;
+  --accent: #a855f7;
+  --accent-secondary: #ec4899;
+  --accent-hover: #c084fc;
+  --user-bubble: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  --user-bubble-solid: #a855f7;
+  --assistant-bubble: #1c1c1e;
+  --error: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --orange: #f97316;
+  --link: #60a5fa;
+  --link-hover: #93c5fd;
+  --telegram: #229ED9;
+  --badge-bg: #1f1528;
+  --badge-border: #352547;
+  --cyan: #22d3ee;
+  --radius: 18px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 100px;
+
+  /* Spacing — 8px grid */
+  --sp-2: 2px;
+  --sp-4: 4px;
+  --sp-8: 8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+
+  /* Type scale — 4 sizes only */
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-base: 13px;
+  --font-lg: 15px;
+
+  /* Surfaces — dark glassmorphism */
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-hover: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-strong: rgba(255, 255, 255, 0.14);
+  --glass-blur: blur(12px) saturate(180%);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 4px 20px rgba(168, 85, 247, 0.6), 0 0 10px rgba(168, 85, 247, 0.4);
+  --shadow-focus: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
+}

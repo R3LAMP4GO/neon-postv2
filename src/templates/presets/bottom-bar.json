@@ -1,0 +1,43 @@
+{
+  "id": "bottom-bar",
+  "name": "Bottom Bar",
+  "format": "portrait",
+  "overlay": {
+    "enabled": false,
+    "color": "#000000",
+    "opacity": 0
+  },
+  "text": {
+    "position": "bottom",
+    "fontFamily": "Anton",
+    "fontSize": 80,
+    "fontWeight": "400",
+    "color": "#ffffff",
+    "strokeColor": "#000000",
+    "strokeWidth": 0,
+    "lineHeight": 1.1,
+    "paddingX": 60,
+    "offsetY": 0,
+    "uppercase": true
+  },
+  "cta": {
+    "enabled": false,
+    "text": "",
+    "position": "bottom-center",
+    "backgroundColor": "rgba(255,255,255,0.15)",
+    "textColor": "#ffffff",
+    "fontSize": 14,
+    "borderRadius": 16,
+    "paddingX": 20,
+    "paddingY": 8,
+    "margin": 48
+  },
+  "watermark": {
+    "enabled": true,
+    "position": "bottom-center",
+    "opacity": 1,
+    "maxWidth": 160,
+    "maxHeight": 45,
+    "margin": 24
+  }
+}

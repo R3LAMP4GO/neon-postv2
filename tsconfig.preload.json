@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node10"
+  },
+  "include": ["src/main/preload.ts", "src/main/splash-preload.ts"],
+  "exclude": []
+}

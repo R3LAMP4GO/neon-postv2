@@ -1,0 +1,347 @@
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: width 0.2s ease, min-width 0.2s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 48px;
+  min-width: 48px;
+}
+
+/* Sidebar header (toggle + logo) */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  font-family: 'Cal Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar.collapsed .sidebar-logo {
+  opacity: 0;
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.sidebar-toggle svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle svg {
+  transform: rotate(180deg);
+}
+
+/* Sidebar nav */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: 'Cal Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.sidebar-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.sidebar-btn-label {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar.collapsed .sidebar-btn-label {
+  opacity: 0;
+}
+
+.sidebar-btn.active {
+  color: var(--accent);
+  background: rgba(168, 85, 247, 0.1);
+}
+
+/* Sidebar bottom (pinned) */
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 4px 8px 8px;
+}
+
+/* Sidebar divider */
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0;
+  flex-shrink: 0;
+}
+
+/* Session list */
+.sidebar-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-sessions::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-sessions::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-sessions::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+/* Session item */
+.sidebar-session {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+  color: var(--text-secondary);
+}
+
+.sidebar-session:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.sidebar-session.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+  background: var(--accent);
+  color: white;
+}
+
+.sidebar-session.loading .sidebar-session-name {
+  background: linear-gradient(
+    90deg,
+    var(--text-primary) 0%,
+    var(--text-primary) 40%,
+    #60a5fa 50%,
+    var(--text-primary) 60%,
+    var(--text-primary) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sidebar-text-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes sidebar-text-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.sidebar-session-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.sidebar-session-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sidebar-session-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Cal Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar.collapsed .sidebar-session-name {
+  opacity: 0;
+}
+
+.sidebar-session-telegram {
+  display: flex;
+  align-items: center;
+  color: var(--telegram);
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebar-session-telegram {
+  display: none;
+}
+
+.sidebar-session-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-size: 13px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.sidebar-session:hover .sidebar-session-close {
+  opacity: 1;
+}
+
+.sidebar-session-close:hover {
+  background: var(--error);
+  color: white;
+}
+
+.sidebar.collapsed .sidebar-session-close {
+  display: none;
+}
+
+/* Rename input inside sidebar session */
+.sidebar-session .tab-name-input {
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: 'Cal Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  padding: 2px 6px;
+  width: 100%;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Chat view wrapper */
+#chat-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+#chat-view.hidden {
+  display: none;
+}
+
+/* App layout wrapper */
+.app-layout {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Active session — placed last for specificity */
+.sidebar-session.active {
+  background: rgba(168, 85, 247, 0.1);
+  color: var(--text-primary);
+}
+
+.sidebar-session.active .sidebar-session-icon {
+  color: var(--accent);
+}
+
+.sidebar-session.active .sidebar-session-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}

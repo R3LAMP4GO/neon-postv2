@@ -1,0 +1,430 @@
+/* Brain Panel — scoped under #brain-view */
+
+#brain-view {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#brain-view.active {
+  display: flex;
+}
+
+/* Brain Header */
+#brain-view .brain-header {
+  background: var(--bg-secondary);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+#brain-view .brain-header h1 {
+  font-family: 'Cal Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+#brain-view .brain-header h1 span {
+  color: var(--text-primary);
+}
+
+#brain-view .brain-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+#brain-view .brain-header-actions button {
+  padding: 6px 14px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+
+#brain-view .brain-header-actions button:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+
+/* Container (sidebar + content) */
+#brain-view .brain-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Nav sidebar */
+#brain-view .brain-sidebar {
+  width: 180px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+#brain-view .brain-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: 'Cal Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  border-left: 3px solid transparent;
+}
+
+#brain-view .brain-nav-item:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+#brain-view .brain-nav-item.active {
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.1) 0%, transparent 100%);
+  color: var(--text-primary);
+  border-left-color: var(--accent);
+}
+
+#brain-view .brain-nav-item svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+/* Brain Content */
+#brain-view .brain-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#brain-view .brain-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+#brain-view .brain-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#brain-view .brain-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+/* Brain Sections */
+#brain-view .brain-section {
+  display: none;
+}
+
+#brain-view .brain-section.active {
+  display: block;
+}
+
+/* Facts Table */
+#brain-view .facts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#brain-view .facts-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#brain-view .facts-table th {
+  background: var(--bg-secondary);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+}
+
+#brain-view .facts-table td {
+  padding: 10px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+#brain-view .facts-table tbody tr:hover td {
+  background: var(--bg-secondary);
+}
+
+#brain-view .facts-table .fact-category {
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+  width: 100px;
+  color: var(--accent);
+}
+
+#brain-view .facts-table .fact-subject {
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  width: 140px;
+}
+
+#brain-view .facts-table .fact-content {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+#brain-view .facts-table .fact-actions {
+  width: 40px;
+  text-align: center;
+}
+
+#brain-view .fact-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  opacity: 0;
+}
+
+#brain-view .facts-table tbody tr:hover .fact-delete-btn {
+  opacity: 1;
+}
+
+#brain-view .fact-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+}
+
+#brain-view .fact-delete-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Soul Cards */
+#brain-view .soul-cards {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#brain-view .soul-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  position: relative;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#brain-view .soul-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.1);
+}
+
+#brain-view .soul-card-name {
+  color: var(--accent);
+  font-family: 'Cal Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+#brain-view .soul-card-content {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+#brain-view .soul-card-meta {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+#brain-view .soul-delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  opacity: 0;
+}
+
+#brain-view .soul-card:hover .soul-delete-btn {
+  opacity: 1;
+}
+
+#brain-view .soul-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+}
+
+#brain-view .soul-delete-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Daily Logs Table */
+#brain-view .logs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#brain-view .logs-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#brain-view .logs-table th {
+  background: var(--bg-secondary);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+}
+
+#brain-view .logs-table td {
+  padding: 10px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+#brain-view .logs-table tbody tr:hover td {
+  background: var(--bg-secondary);
+}
+
+#brain-view .log-date {
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+  width: 120px;
+  color: var(--accent);
+}
+
+#brain-view .log-date .now-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  margin-left: 6px;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 600;
+  -webkit-text-fill-color: var(--accent);
+}
+
+#brain-view .log-content {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+#brain-view .log-actions {
+  width: 40px;
+  text-align: center;
+}
+
+#brain-view .log-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  opacity: 0;
+}
+
+#brain-view .logs-table tbody tr:hover .log-delete-btn {
+  opacity: 1;
+}
+
+#brain-view .log-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+}
+
+#brain-view .log-delete-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Empty State */
+#brain-view .brain-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+#brain-view .brain-empty svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+#brain-view .brain-empty p {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+#brain-view .brain-empty small {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Count badge in header */
+#brain-view .brain-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+}

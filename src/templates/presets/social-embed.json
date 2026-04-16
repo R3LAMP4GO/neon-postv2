@@ -1,0 +1,43 @@
+{
+  "id": "social-embed",
+  "name": "Social Embed",
+  "format": "portrait",
+  "overlay": {
+    "enabled": true,
+    "color": "#000000",
+    "opacity": 0.3
+  },
+  "text": {
+    "position": "top",
+    "fontFamily": "Anton",
+    "fontSize": 48,
+    "fontWeight": "400",
+    "color": "#ffffff",
+    "strokeColor": "#000000",
+    "strokeWidth": 0,
+    "lineHeight": 1.15,
+    "paddingX": 48,
+    "offsetY": 48,
+    "uppercase": true
+  },
+  "cta": {
+    "enabled": false,
+    "text": "",
+    "position": "bottom-center",
+    "backgroundColor": "rgba(255,255,255,0.15)",
+    "textColor": "#ffffff",
+    "fontSize": 14,
+    "borderRadius": 16,
+    "paddingX": 20,
+    "paddingY": 8,
+    "margin": 48
+  },
+  "watermark": {
+    "enabled": true,
+    "position": "bottom-right",
+    "opacity": 0.5,
+    "maxWidth": 140,
+    "maxHeight": 40,
+    "margin": 24
+  }
+}

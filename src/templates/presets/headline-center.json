@@ -1,0 +1,43 @@
+{
+  "id": "headline-center",
+  "name": "Headline Center",
+  "format": "portrait",
+  "overlay": {
+    "enabled": true,
+    "color": "#000000",
+    "opacity": 0.55
+  },
+  "text": {
+    "position": "center",
+    "fontFamily": "Anton",
+    "fontSize": 84,
+    "fontWeight": "400",
+    "color": "#ffffff",
+    "strokeColor": "#000000",
+    "strokeWidth": 4,
+    "lineHeight": 1.1,
+    "paddingX": 60,
+    "offsetY": 0,
+    "uppercase": true
+  },
+  "cta": {
+    "enabled": true,
+    "text": "SWIPE FOR MORE",
+    "position": "bottom-center",
+    "backgroundColor": "rgba(255,255,255,0.15)",
+    "textColor": "#ffffff",
+    "fontSize": 14,
+    "borderRadius": 16,
+    "paddingX": 20,
+    "paddingY": 8,
+    "margin": 48
+  },
+  "watermark": {
+    "enabled": true,
+    "position": "bottom-right",
+    "opacity": 0.7,
+    "maxWidth": 200,
+    "maxHeight": 60,
+    "margin": 30
+  }
+}
