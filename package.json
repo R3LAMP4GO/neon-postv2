@@ -39,7 +39,7 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "creativeprofit22",
+      "owner": "R3LAMP4GO",
       "repo": "neon-postv2"
     },
     "mac": {
