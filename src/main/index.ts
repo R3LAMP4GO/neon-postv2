@@ -29,6 +29,7 @@ import {
   registerIosIPC,
   registerMiscIPC,
   registerSocialIpc,
+  registerArticleSourcesIPC,
   registerCompositorIpc,
   wireIosChannelHandlers,
 } from './ipc';
@@ -585,6 +586,7 @@ function setupIPC(): void {
   registerIosIPC(deps);
   registerMiscIPC(deps);
   registerSocialIpc(deps, imageTracker);
+  registerArticleSourcesIPC(deps);
   registerCompositorIpc(deps);
 }
 
