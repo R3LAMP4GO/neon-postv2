@@ -2613,6 +2613,11 @@
       const statusEl = document.getElementById('pocket-cli-status');
       const installBtn = document.getElementById('pocket-cli-install-btn');
 
+      statusEl.className = 'status warning';
+      statusEl.textContent = 'Unavailable';
+      showToast('Pocket CLI binary is not published by upstream. This feature is disabled.', 'warning');
+      return;
+
       try {
         installBtn.disabled = true;
         installBtn.textContent = 'Installing...';
