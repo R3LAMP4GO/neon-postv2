@@ -73,6 +73,14 @@ export {
 export type { TwitterTrendResult } from './apify';
 
 export {
+  scrapeArticle,
+  scrapeSource,
+  detectSourceType,
+  ArticleScrapeError,
+} from './article';
+export type { ArticleResult, SourceType, ScrapeSourceOptions, ScrapeSourceResult } from './article';
+
+export {
   searchTikTok as rapidapiSearchTikTok,
   getTikTokTrending as rapidapiGetTrending,
   getTikTokUserVideos as rapidapiGetTikTokUserVideos,
