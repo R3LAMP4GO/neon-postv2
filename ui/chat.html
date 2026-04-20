@@ -1164,6 +1164,47 @@
           </button>
         </div>
 
+        <!-- News Sources (auto-scrape articles on a schedule into pending drafts) -->
+        <h3 class="soc-section-title" style="margin-top:18px;margin-bottom:8px">News Sources</h3>
+        <p class="soc-hint" style="margin-bottom:10px">
+          Paste an article, RSS feed, or section URL. Watcher fetches new items on a schedule and queues
+          them here for you to approve with <strong>Go</strong> — approved items become drafts, skipped
+          ones are discarded. Items you never act on auto-clear after 7 days.
+        </p>
+        <div class="soc-source-add-row">
+          <input type="url" id="soc-source-url" placeholder="https://www.cnn.com/sport (article / feed / index)" autocomplete="off">
+          <select id="soc-source-schedule" title="Scrape schedule">
+            <option value="0 * * * *">Hourly</option>
+            <option value="0 */6 * * *" selected>Every 6h</option>
+            <option value="0 9 * * *">Daily 9am</option>
+            <option value="0 9 * * 1">Weekly Mon 9am</option>
+          </select>
+          <button class="soc-btn soc-btn-primary" id="soc-source-add-btn">Add</button>
+        </div>
+        <div id="soc-sources-list" class="soc-sources-list"></div>
+
+        <!-- Pending review modal -->
+        <div id="soc-source-pending-modal" class="soc-source-pending-modal" style="display:none">
+          <div class="soc-source-pending-modal__backdrop" id="soc-source-pending-modal-backdrop"></div>
+          <div class="soc-source-pending-modal__panel">
+            <div class="soc-flex-between soc-mb-12">
+              <span class="soc-section-title" id="soc-source-pending-title">Pending Articles</span>
+              <button class="soc-btn soc-btn-sm soc-btn-secondary" id="soc-source-pending-close">Close</button>
+            </div>
+            <div class="soc-form-row soc-mb-12">
+              <label>Target platform for Go:</label>
+              <select id="soc-source-pending-platform">
+                <option value="tiktok">TikTok</option>
+                <option value="instagram">Instagram</option>
+                <option value="twitter">X / Twitter</option>
+                <option value="youtube">YouTube</option>
+                <option value="linkedin">LinkedIn</option>
+              </select>
+            </div>
+            <div id="soc-source-pending-list" class="soc-source-pending-list"></div>
+          </div>
+        </div>
+
         <!-- Saved Content Picker (hidden by default) -->
         <div id="soc-create-saved-picker" class="soc-create-saved-picker" style="display:none">
           <div class="soc-flex-between soc-mb-12">

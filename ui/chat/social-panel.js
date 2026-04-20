@@ -1392,6 +1392,7 @@ function _socInit() {
         var filterEl = root.querySelector('#soc-drafts-filter');
         if (filterEl) filterEl.value = _socDraftsFilterValue;
         _socLoadDrafts();
+        _socLoadSources();
       }
 
       // Update bubble quick actions for new tab
@@ -1429,6 +1430,9 @@ function _socInit() {
 
   // ── Entry point buttons ──
   _socInitEntryPoints(root);
+
+  // ── News Sources watcher section ──
+  _socInitNewsSources(root);
 
   // ── Gallery (delegated to gallery-panel.js) ──
   galPanelInit(root);
@@ -5004,4 +5008,323 @@ function _socRenderLIMockup(el, data) {
     '</div>';
 }
 
+// ─── News Sources (article / feed / index URL watchers) ──────────────────
+
+var _socSourcesCache = null;
+var _socSourcesPendingCache = {}; // sourceId -> count
+var _socSourcesActiveModalId = null;
+
+function _socSourcesAPI() {
+  var api = _socAPI();
+  return api && api.articleSources ? api.articleSources : null;
+}
+
+function _socInitNewsSources(root) {
+  var addBtn = root.querySelector('#soc-source-add-btn');
+  var urlInput = root.querySelector('#soc-source-url');
+  var scheduleSelect = root.querySelector('#soc-source-schedule');
+  if (addBtn && urlInput && scheduleSelect) {
+    addBtn.addEventListener('click', function () {
+      var url = (urlInput.value || '').trim();
+      if (!url) { _socShowToast('Paste an article or feed URL', 'error'); return; }
+      var schedule = scheduleSelect.value;
+      var api = _socSourcesAPI();
+      if (!api) { _socShowToast('Social API unavailable', 'error'); return; }
+      addBtn.disabled = true;
+      addBtn.textContent = 'Adding…';
+      api.add(url, schedule)
+        .then(function (r) {
+          if (r.success) {
+            urlInput.value = '';
+            _socShowToast('Source added: ' + (r.source.source_name || url), 'success');
+            _socSourcesCache = null;
+            _socLoadSources();
+          } else {
+            _socShowToast(r.error || 'Failed to add source', 'error');
+          }
+        })
+        .catch(function (err) {
+          console.error('[NewsSources] add failed', err);
+          _socShowToast('Failed to add source', 'error');
+        })
+        .finally(function () {
+          addBtn.disabled = false;
+          addBtn.textContent = 'Add';
+        });
+    });
+    urlInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); }
+    });
+  }
+
+  var closeBtn = root.querySelector('#soc-source-pending-close');
+  var backdrop = root.querySelector('#soc-source-pending-modal-backdrop');
+  if (closeBtn) closeBtn.addEventListener('click', _socClosePendingModal);
+  if (backdrop) backdrop.addEventListener('click', _socClosePendingModal);
+
+  // Initial load (covers the case where Drafts tab is the default)
+  _socLoadSources();
+}
+
+function _socLoadSources() {
+  var root = document.getElementById('social-view');
+  var list = root && root.querySelector('#soc-sources-list');
+  if (!list) return;
+  var api = _socSourcesAPI();
+  if (!api) { list.innerHTML = ''; return; }
+
+  api.list()
+    .then(function (r) {
+      if (!r.success) { list.innerHTML = ''; return; }
+      _socSourcesCache = r.sources || [];
+      _socRenderSources(_socSourcesCache);
+      _socSourcesCache.forEach(function (s) { _socRefreshPendingCount(s.id); });
+    })
+    .catch(function (err) {
+      console.error('[NewsSources] list failed', err);
+      list.innerHTML = '';
+    });
+}
+
+function _socRenderSources(sources) {
+  var root = document.getElementById('social-view');
+  var list = root && root.querySelector('#soc-sources-list');
+  if (!list) return;
+  if (!sources || sources.length === 0) {
+    list.innerHTML = '<div class="soc-empty" style="padding:12px"><p class="hint">No news sources yet. Paste a URL above to start watching.</p></div>';
+    return;
+  }
+  list.innerHTML = sources.map(_socSourceChipHtml).join('');
+}
+
+function _socSourceChipHtml(s) {
+  var statusClass =
+    s.last_status === 'error' ? 'error' :
+    s.last_status === 'ok' ? 'ok' : 'idle';
+  var statusTitle =
+    s.last_status === 'error' ? (s.last_error || 'Last scrape failed') :
+    s.last_status === 'ok' ? ('Last scrape ok' + (s.last_run_at ? ' · ' + _socFormatRelative(s.last_run_at) : '')) :
+    'Never scraped';
+  var typeBadge =
+    s.source_type === 'feed' ? 'Feed' :
+    s.source_type === 'index' ? 'Index' : 'Article';
+  var pendingCount = _socSourcesPendingCache[s.id] || 0;
+  var pendingBadge = pendingCount > 0
+    ? '<button class="soc-source-chip__pending" onclick="socPanelActions.openPendingModal(\'' + s.id + '\')" title="' + pendingCount + ' pending article' + (pendingCount === 1 ? '' : 's') + '">' + pendingCount + ' new</button>'
+    : '';
+  var scheduleOptions = [
+    ['0 * * * *', 'Hourly'],
+    ['0 */6 * * *', 'Every 6h'],
+    ['0 9 * * *', 'Daily 9am'],
+    ['0 9 * * 1', 'Weekly Mon'],
+  ].map(function (p) {
+    var sel = p[0] === s.schedule_expr ? ' selected' : '';
+    return '<option value="' + p[0] + '"' + sel + '>' + p[1] + '</option>';
+  }).join('');
+
+  return '<div class="soc-source-chip" data-id="' + s.id + '">' +
+    '<span class="soc-source-chip__status ' + statusClass + '" title="' + _socEscapeHtml(statusTitle) + '"></span>' +
+    '<div class="soc-source-chip__main">' +
+      '<div class="soc-source-chip__name">' + _socEscapeHtml(s.source_name) + '</div>' +
+      '<div class="soc-source-chip__url" title="' + _socEscapeHtml(s.url) + '">' + _socEscapeHtml(s.url) + '</div>' +
+    '</div>' +
+    '<span class="soc-source-chip__badge">' + typeBadge + '</span>' +
+    pendingBadge +
+    '<select class="soc-source-chip__schedule" onchange="socPanelActions.changeSourceSchedule(\'' + s.id + '\', this.value)">' + scheduleOptions + '</select>' +
+    '<label class="soc-source-chip__active" title="Active">' +
+      '<input type="checkbox" ' + (s.active ? 'checked' : '') + ' onchange="socPanelActions.toggleSource(\'' + s.id + '\', this.checked)">' +
+      '<span>On</span>' +
+    '</label>' +
+    '<button class="soc-btn soc-btn-sm soc-btn-secondary" onclick="socPanelActions.runSourceNow(\'' + s.id + '\', this)" title="Scrape now">Run now</button>' +
+    '<button class="soc-icon-btn danger" onclick="socPanelActions.deleteSource(\'' + s.id + '\')" title="Remove">' +
+      '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>' +
+    '</button>' +
+  '</div>';
+}
+
+function _socRefreshPendingCount(sourceId) {
+  var api = _socSourcesAPI();
+  if (!api) return;
+  api.countPending(sourceId)
+    .then(function (r) {
+      if (r && r.success) {
+        var prev = _socSourcesPendingCache[sourceId] || 0;
+        _socSourcesPendingCache[sourceId] = r.count;
+        if (prev !== r.count && _socSourcesCache) {
+          _socRenderSources(_socSourcesCache);
+        }
+      }
+    })
+    .catch(function () { /* non-fatal */ });
+}
+
+function _socFormatRelative(iso) {
+  try {
+    var diff = Date.now() - new Date(iso).getTime();
+    if (diff < 60_000) return 'just now';
+    if (diff < 3600_000) return Math.floor(diff / 60_000) + 'm ago';
+    if (diff < 86_400_000) return Math.floor(diff / 3600_000) + 'h ago';
+    return Math.floor(diff / 86_400_000) + 'd ago';
+  } catch { return ''; }
+}
+
+function _socOpenPendingModal(sourceId) {
+  var root = document.getElementById('social-view');
+  var modal = root && root.querySelector('#soc-source-pending-modal');
+  if (!modal) return;
+  _socSourcesActiveModalId = sourceId;
+  modal.style.display = '';
+  var titleEl = root.querySelector('#soc-source-pending-title');
+  var src = (_socSourcesCache || []).find(function (s) { return s.id === sourceId; });
+  if (titleEl) titleEl.textContent = src ? ('Pending from ' + src.source_name) : 'Pending Articles';
+  _socLoadPendingList(sourceId);
+}
+
+function _socClosePendingModal() {
+  var root = document.getElementById('social-view');
+  var modal = root && root.querySelector('#soc-source-pending-modal');
+  if (modal) modal.style.display = 'none';
+  _socSourcesActiveModalId = null;
+}
+
+function _socLoadPendingList(sourceId) {
+  var root = document.getElementById('social-view');
+  var list = root && root.querySelector('#soc-source-pending-list');
+  if (!list) return;
+  var api = _socSourcesAPI();
+  if (!api) { list.innerHTML = ''; return; }
+  list.innerHTML = '<div class="hint" style="padding:12px">Loading…</div>';
+  api.listPending(sourceId)
+    .then(function (r) {
+      if (!r.success) { list.innerHTML = '<div class="hint" style="padding:12px">Failed to load.</div>'; return; }
+      var items = r.items || [];
+      if (items.length === 0) {
+        list.innerHTML = '<div class="hint" style="padding:12px">Nothing pending.</div>';
+        return;
+      }
+      list.innerHTML = items.map(function (it) {
+        var excerpt = it.excerpt || (it.text_content || '').slice(0, 240);
+        return '<div class="soc-pending-row" data-id="' + it.id + '">' +
+          '<div class="soc-pending-row__body">' +
+            '<div class="soc-pending-row__title">' + _socEscapeHtml(it.title || it.article_url) + '</div>' +
+            '<div class="soc-pending-row__excerpt">' + _socEscapeHtml(excerpt) + '</div>' +
+            '<a class="soc-pending-row__link" href="#" onclick="event.preventDefault(); window.neonPost && window.neonPost.shell && window.neonPost.shell.openUrl && window.neonPost.shell.openUrl(\'' + (it.article_url || '').replace(/'/g, '') + '\')">' + _socEscapeHtml(it.article_url || '') + '</a>' +
+          '</div>' +
+          '<div class="soc-pending-row__actions">' +
+            '<button class="soc-btn soc-btn-sm soc-btn-primary" onclick="socPanelActions.goPending(\'' + it.id + '\', this)">Go</button>' +
+            '<button class="soc-btn soc-btn-sm soc-btn-secondary" onclick="socPanelActions.skipPending(\'' + it.id + '\')">Skip</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function (err) {
+      console.error('[NewsSources] listPending failed', err);
+      list.innerHTML = '<div class="hint" style="padding:12px">Failed to load.</div>';
+    });
+}
+
+Object.assign(window.socPanelActions, {
+  runSourceNow: function (id, btn) {
+    var api = _socSourcesAPI();
+    if (!api) return;
+    if (btn) { btn.disabled = true; btn.textContent = 'Running…'; }
+    api.runNow(id)
+      .then(function (r) {
+        if (r.success) {
+          _socShowToast('Scraped ' + r.itemsScraped + ' · queued ' + r.itemsInserted + ' new', 'success');
+        } else {
+          _socShowToast(r.error || 'Scrape failed', 'error');
+        }
+        _socSourcesCache = null;
+        _socLoadSources();
+      })
+      .catch(function (err) {
+        console.error('[NewsSources] runNow failed', err);
+        _socShowToast('Scrape failed', 'error');
+      })
+      .finally(function () {
+        if (btn) { btn.disabled = false; btn.textContent = 'Run now'; }
+      });
+  },
+
+  deleteSource: function (id) {
+    if (!confirm('Delete this news source and its pending articles?')) return;
+    var api = _socSourcesAPI();
+    if (!api) return;
+    api.delete(id)
+      .then(function (r) {
+        if (r.success) {
+          _socShowToast('Source removed', 'success');
+          _socSourcesCache = null;
+          delete _socSourcesPendingCache[id];
+          _socLoadSources();
+        } else {
+          _socShowToast(r.error || 'Delete failed', 'error');
+        }
+      });
+  },
+
+  toggleSource: function (id, active) {
+    var api = _socSourcesAPI();
+    if (!api) return;
+    api.update(id, { active: !!active })
+      .then(function (r) {
+        if (!r.success) _socShowToast(r.error || 'Update failed', 'error');
+        _socSourcesCache = null;
+        _socLoadSources();
+      });
+  },
+
+  changeSourceSchedule: function (id, scheduleExpr) {
+    var api = _socSourcesAPI();
+    if (!api) return;
+    api.update(id, { schedule_expr: scheduleExpr })
+      .then(function (r) {
+        if (r.success) {
+          _socShowToast('Schedule updated', 'success');
+        } else {
+          _socShowToast(r.error || 'Update failed', 'error');
+        }
+        _socSourcesCache = null;
+        _socLoadSources();
+      });
+  },
+
+  openPendingModal: function (id) { _socOpenPendingModal(id); },
+
+  goPending: function (pendingId, btn) {
+    var api = _socSourcesAPI();
+    if (!api) return;
+    var root = document.getElementById('social-view');
+    var platformSelect = root && root.querySelector('#soc-source-pending-platform');
+    var platform = (platformSelect && platformSelect.value) || 'tiktok';
+    if (btn) btn.disabled = true;
+    api.goPending(pendingId, platform)
+      .then(function (r) {
+        if (r.success) {
+          _socShowToast('Added to drafts', 'success');
+          if (_socSourcesActiveModalId) _socLoadPendingList(_socSourcesActiveModalId);
+          if (_socSourcesActiveModalId) _socRefreshPendingCount(_socSourcesActiveModalId);
+          _socLoadDrafts();
+        } else {
+          _socShowToast(r.error || 'Go failed', 'error');
+        }
+      })
+      .finally(function () { if (btn) btn.disabled = false; });
+  },
+
+  skipPending: function (pendingId) {
+    var api = _socSourcesAPI();
+    if (!api) return;
+    api.skipPending(pendingId)
+      .then(function (r) {
+        if (r.success) {
+          if (_socSourcesActiveModalId) _socLoadPendingList(_socSourcesActiveModalId);
+          if (_socSourcesActiveModalId) _socRefreshPendingCount(_socSourcesActiveModalId);
+        } else {
+          _socShowToast((r && r.error) || 'Skip failed', 'error');
+        }
+      });
+  },
+});
 
