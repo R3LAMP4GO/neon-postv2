@@ -290,6 +290,22 @@ contextBridge.exposeInMainWorld('neonPost', {
     reschedulePost: (id: string, scheduledAt: string) =>
       ipcRenderer.invoke('social:reschedulePost', id, scheduledAt),
     deletePost: (id: string) => ipcRenderer.invoke('social:deletePost', id),
+    articleSources: {
+      list: () => ipcRenderer.invoke('articleSources:list'),
+      add: (url: string, scheduleExpr?: string) =>
+        ipcRenderer.invoke('articleSources:add', url, scheduleExpr),
+      update: (id: string, input: Record<string, unknown>) =>
+        ipcRenderer.invoke('articleSources:update', id, input),
+      delete: (id: string) => ipcRenderer.invoke('articleSources:delete', id),
+      runNow: (id: string) => ipcRenderer.invoke('articleSources:runNow', id),
+    },
+    onArticleSourceChanged: (
+      callback: (data: { action: 'created' | 'updated' | 'deleted'; sourceId: string }) => void
+    ) => {
+      ipcRenderer.on('social:articleSourceChanged', (_, data) => {
+        callback(data);
+      });
+    },
     getImageStatus: (predictionId: string) =>
       ipcRenderer.invoke('social:getImageStatus', predictionId),
     detectTrends: (limit?: number) => ipcRenderer.invoke('social:detectTrends', limit),
@@ -998,6 +1014,41 @@ declare global {
           scheduledAt: string
         ) => Promise<{ success: boolean; data?: Record<string, unknown>; error?: string }>;
         deletePost: (id: string) => Promise<{ success: boolean; error?: string }>;
+        articleSources: {
+          list: () => Promise<
+            | { success: true; sources: Array<Record<string, unknown>> }
+            | { success: false; error: string }
+          >;
+          add: (
+            url: string,
+            scheduleExpr?: string
+          ) => Promise<
+            | { success: true; source: Record<string, unknown> }
+            | { success: false; error: string }
+          >;
+          update: (
+            id: string,
+            input: Record<string, unknown>
+          ) => Promise<
+            | { success: true; source: Record<string, unknown> }
+            | { success: false; error: string }
+          >;
+          delete: (id: string) => Promise<{ success: boolean; error?: string }>;
+          runNow: (id: string) => Promise<
+            | {
+                success: true;
+                sourceType: 'article' | 'feed' | 'index';
+                items: Array<Record<string, unknown>>;
+              }
+            | { success: false; error: string }
+          >;
+        };
+        onArticleSourceChanged: (
+          callback: (data: {
+            action: 'created' | 'updated' | 'deleted';
+            sourceId: string;
+          }) => void
+        ) => void;
         getDrafts: (platform?: string) => Promise<Array<Record<string, unknown>>>;
         updateDraft: (
           id: string,

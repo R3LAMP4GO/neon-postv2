@@ -80,6 +80,7 @@ import {
 } from './sessions';
 import { SocialAccountsStore, SOCIAL_ACCOUNTS_SCHEMA } from './social-accounts';
 import { DiscoveredContentStore, DISCOVERED_CONTENT_SCHEMA } from './discovered-content';
+import { ArticleSourcesStore, ARTICLE_SOURCES_SCHEMA } from './article-sources';
 import { SocialPostsStore, SOCIAL_POSTS_SCHEMA } from './social-posts';
 import { EngagementLogStore, ENGAGEMENT_LOG_SCHEMA } from './engagement';
 import { BrandConfigStore, BRAND_CONFIG_SCHEMA } from './brand-config';
@@ -143,6 +144,7 @@ export class MemoryManager {
   // Social / content stores
   readonly socialAccounts: SocialAccountsStore;
   readonly discoveredContent: DiscoveredContentStore;
+  readonly articleSources: ArticleSourcesStore;
   readonly socialPosts: SocialPostsStore;
   readonly engagementLog: EngagementLogStore;
   readonly brandConfig: BrandConfigStore;
@@ -157,6 +159,7 @@ export class MemoryManager {
     // Instantiate social/content stores (tables already created in initialize())
     this.socialAccounts = new SocialAccountsStore(this.db);
     this.discoveredContent = new DiscoveredContentStore(this.db);
+    this.articleSources = new ArticleSourcesStore(this.db);
     this.socialPosts = new SocialPostsStore(this.db);
     this.engagementLog = new EngagementLogStore(this.db);
     this.brandConfig = new BrandConfigStore(this.db);
@@ -336,6 +339,7 @@ export class MemoryManager {
     // Social / content tables
     this.db.exec(SOCIAL_ACCOUNTS_SCHEMA);
     this.db.exec(DISCOVERED_CONTENT_SCHEMA);
+    this.db.exec(ARTICLE_SOURCES_SCHEMA);
     this.db.exec(SOCIAL_POSTS_SCHEMA);
     this.db.exec(ENGAGEMENT_LOG_SCHEMA);
     this.db.exec(BRAND_CONFIG_SCHEMA);
