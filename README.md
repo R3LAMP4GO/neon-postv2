@@ -4,6 +4,22 @@ A desktop AI assistant that lives in your system tray. It remembers you, helps y
 
 ---
 
+## Quick Install (Windows)
+
+Open **PowerShell** and paste:
+
+```powershell
+iwr https://github.com/R3LAMP4GO/neon-postv2/releases/latest/download/Neon-Post-4.1.3-x64-setup.exe -OutFile $env:TEMP\neon-setup.exe; & $env:TEMP\neon-setup.exe
+```
+
+This downloads and launches the installer. Keep the **"Create Desktop Shortcut"** checkbox checked. After install, double-click the Neon Post icon on your Desktop to launch.
+
+**First launch only:** Windows SmartScreen shows "Windows protected your PC". Click **More info → Run anyway** — the installer is unsigned.
+
+Prefer a manual download? Grab the `.exe` from the [Releases page](https://github.com/R3LAMP4GO/neon-postv2/releases/latest).
+
+---
+
 ## What It Does
 
 Neon Post is a personal AI that runs on your computer (not in the cloud). You chat with it like a friend, but it can also browse the web for you, write and schedule social media posts, generate images, and handle recurring tasks on autopilot.
