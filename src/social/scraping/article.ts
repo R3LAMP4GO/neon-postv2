@@ -18,6 +18,7 @@ import { JSDOM, VirtualConsole } from 'jsdom';
 import Parser from 'rss-parser';
 
 import { proxyFetch } from '../../utils/proxy-fetch';
+import { logError } from '../../utils/file-logger';
 
 const LOG_PREFIX = '[scrape:article]';
 const USER_AGENT =
@@ -78,11 +79,18 @@ async function fetchHtml(url: string): Promise<{ html: string; contentType: stri
       signal: controller.signal,
     });
     if (!res.ok) {
-      throw new ArticleScrapeError(`HTTP ${res.status} for ${url}`, url, res.status);
+      const err = new ArticleScrapeError(`HTTP ${res.status} for ${url}`, url, res.status);
+      logError('article-scrape', 'fetch non-2xx', err, { url, status: res.status });
+      throw err;
     }
     const contentType = res.headers.get('content-type') || '';
     const html = await res.text();
     return { html, contentType };
+  } catch (err) {
+    if (!(err instanceof ArticleScrapeError)) {
+      logError('article-scrape', 'fetch failed', err, { url });
+    }
+    throw err;
   } finally {
     clearTimeout(timer);
   }
@@ -271,6 +279,7 @@ async function scrapeFeed(feedUrl: string, maxItems: number): Promise<ArticleRes
       results.push(art);
     } catch (err) {
       console.warn(`${LOG_PREFIX} feed item failed ${itemUrl}: ${(err as Error).message}`);
+      logError('article-scrape', 'feed item failed', err, { feedUrl, itemUrl });
     }
   }
   return results;
@@ -290,6 +299,7 @@ async function scrapeIndex(
       results.push(art);
     } catch (err) {
       console.warn(`${LOG_PREFIX} index link failed ${link}: ${(err as Error).message}`);
+      logError('article-scrape', 'index link failed', err, { indexUrl, link });
     }
   }
   return results;

@@ -9,6 +9,7 @@
 
 import type { MemoryManager } from '../../memory';
 import { scrapeSource, ArticleScrapeError } from './article';
+import { logError, logInfo } from '../../utils/file-logger';
 
 const LOG_PREFIX = '[article-scrape-job]';
 
@@ -87,6 +88,15 @@ export async function runArticleScrapeJob(
     console.log(
       `${LOG_PREFIX} ${source.source_name}: scraped=${result.items.length} deduped=${deduped} inserted=${fresh.length}`
     );
+    logInfo('article-scrape-job', 'run ok', {
+      sourceId,
+      sourceName: source.source_name,
+      url: source.url,
+      sourceType: result.sourceType,
+      itemsScraped: result.items.length,
+      itemsDeduped: deduped,
+      itemsInserted: fresh.length,
+    });
 
     return {
       sourceId,
@@ -99,6 +109,11 @@ export async function runArticleScrapeJob(
     const message = err instanceof ArticleScrapeError ? err.message : (err as Error).message;
     memory.articleSources.touchLastRun(sourceId, 'error', message.slice(0, 200));
     console.error(`${LOG_PREFIX} scrape failed for ${source.url}: ${message}`);
+    logError('article-scrape-job', 'run failed', err, {
+      sourceId,
+      sourceName: source.source_name,
+      url: source.url,
+    });
     return {
       sourceId,
       sourceType: 'unknown',

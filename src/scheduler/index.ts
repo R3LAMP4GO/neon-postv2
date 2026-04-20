@@ -17,6 +17,7 @@ import {
   runArticleScrapeJob,
   runPendingCleanupJob,
 } from '../social/scraping/article-scrape-job';
+import { logError } from '../utils/file-logger';
 
 /**
  * Silent acknowledgment token for scheduled tasks.
@@ -251,21 +252,44 @@ export class CronScheduler {
         } else if (job.job_type === 'article-scrape') {
           // Article source watcher: scrape URL, queue pending drafts, silent.
           if (!this.memory) {
-            throw new Error('Memory not initialized for article-scrape job');
+            const err = new Error('Memory not initialized for article-scrape job');
+            logError('article-scheduler', 'job threw', err, {
+              jobName: job.name,
+              jobType: job.job_type,
+            });
+            throw err;
           }
           const source = this.memory.articleSources.getByCronJobId(job.id);
           if (!source) {
-            throw new Error(`No article_source linked to cron_job id=${job.id}`);
+            const err = new Error(`No article_source linked to cron_job id=${job.id}`);
+            logError('article-scheduler', 'job threw', err, {
+              jobName: job.name,
+              jobType: job.job_type,
+              cronJobId: job.id,
+            });
+            throw err;
           }
           const r = await runArticleScrapeJob(this.memory, source.id);
           response = r.error
             ? `[article-scrape] error: ${r.error}`
             : `[article-scrape] ${source.source_name}: +${r.itemsInserted} pending (${r.itemsScraped} scraped, ${r.itemsDeduped} deduped)`;
-          if (r.error) throw new Error(r.error);
+          if (r.error) {
+            // runArticleScrapeJob already logged, but scheduler-level context adds job name
+            logError('article-scheduler', 'article-scrape branch reported error', undefined, {
+              jobName: job.name,
+              sourceId: source.id,
+              error: r.error,
+            });
+            throw new Error(r.error);
+          }
         } else if (job.job_type === 'article-pending-cleanup') {
           // Periodic purge of pending drafts older than the TTL, silent.
           if (!this.memory) {
-            throw new Error('Memory not initialized for cleanup job');
+            const err = new Error('Memory not initialized for cleanup job');
+            logError('article-scheduler', 'cleanup job threw', err, {
+              jobName: job.name,
+            });
+            throw err;
           }
           const r = runPendingCleanupJob(this.memory, now);
           response = `[article-pending-cleanup] purged=${r.purged}`;

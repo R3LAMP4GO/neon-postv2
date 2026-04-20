@@ -2,6 +2,7 @@ import { ipcMain, BrowserWindow } from 'electron';
 import type { IPCDependencies } from './types';
 import { detectSourceType, scrapeArticle } from '../../social/scraping/article';
 import { runArticleScrapeJob } from '../../social/scraping/article-scrape-job';
+import { logError } from '../../utils/file-logger';
 import type {
   ArticleSource,
   ArticleSourceType,
@@ -109,6 +110,7 @@ export function registerArticleSourcesIPC(deps: IPCDependencies): void {
       }
     } catch (err) {
       console.warn(`${LOG_PREFIX} detection failed for ${url}: ${(err as Error).message}`);
+      logError('article-sources-ipc', 'detection failed', err, { url });
     }
 
     const created = memory.articleSources.create({
