@@ -33,6 +33,7 @@ import type { SoulCache, SoulAspect } from './soul';
 import {
   type CronJob,
   saveCronJob as _saveCronJob,
+  type CronJobType,
   getCronJobs as _getCronJobs,
   setCronJobEnabled as _setCronJobEnabled,
   deleteCronJob as _deleteCronJob,
@@ -81,6 +82,10 @@ import {
 import { SocialAccountsStore, SOCIAL_ACCOUNTS_SCHEMA } from './social-accounts';
 import { DiscoveredContentStore, DISCOVERED_CONTENT_SCHEMA } from './discovered-content';
 import { ArticleSourcesStore, ARTICLE_SOURCES_SCHEMA } from './article-sources';
+import {
+  ArticlePendingDraftsStore,
+  ARTICLE_PENDING_DRAFTS_SCHEMA,
+} from './article-pending-drafts';
 import { SocialPostsStore, SOCIAL_POSTS_SCHEMA } from './social-posts';
 import { EngagementLogStore, ENGAGEMENT_LOG_SCHEMA } from './engagement';
 import { BrandConfigStore, BRAND_CONFIG_SCHEMA } from './brand-config';
@@ -91,7 +96,7 @@ import { TrendsStore, EMERGING_TRENDS_SCHEMA } from './trends';
 export type { Session } from './sessions';
 export type { Message, SmartContextOptions, SmartContext, SummarizerFn } from './messages';
 export type { Fact, SearchResult } from './facts';
-export type { CronJob } from './cron-jobs';
+export type { CronJob, CronJobType } from './cron-jobs';
 export type { DailyLog } from './daily-logs';
 export type { TelegramChatSession } from './telegram-sessions';
 export type { SoulAspect } from './soul';
@@ -145,6 +150,7 @@ export class MemoryManager {
   readonly socialAccounts: SocialAccountsStore;
   readonly discoveredContent: DiscoveredContentStore;
   readonly articleSources: ArticleSourcesStore;
+  readonly articlePendingDrafts: ArticlePendingDraftsStore;
   readonly socialPosts: SocialPostsStore;
   readonly engagementLog: EngagementLogStore;
   readonly brandConfig: BrandConfigStore;
@@ -160,6 +166,7 @@ export class MemoryManager {
     this.socialAccounts = new SocialAccountsStore(this.db);
     this.discoveredContent = new DiscoveredContentStore(this.db);
     this.articleSources = new ArticleSourcesStore(this.db);
+    this.articlePendingDrafts = new ArticlePendingDraftsStore(this.db);
     this.socialPosts = new SocialPostsStore(this.db);
     this.engagementLog = new EngagementLogStore(this.db);
     this.brandConfig = new BrandConfigStore(this.db);
@@ -340,6 +347,7 @@ export class MemoryManager {
     this.db.exec(SOCIAL_ACCOUNTS_SCHEMA);
     this.db.exec(DISCOVERED_CONTENT_SCHEMA);
     this.db.exec(ARTICLE_SOURCES_SCHEMA);
+    this.db.exec(ARTICLE_PENDING_DRAFTS_SCHEMA);
     this.db.exec(SOCIAL_POSTS_SCHEMA);
     this.db.exec(ENGAGEMENT_LOG_SCHEMA);
     this.db.exec(BRAND_CONFIG_SCHEMA);
@@ -927,9 +935,10 @@ export class MemoryManager {
     schedule: string,
     prompt: string,
     channel: string = 'default',
-    sessionId: string = 'default'
+    sessionId: string = 'default',
+    jobType: CronJobType = 'routine'
   ): number {
-    return _saveCronJob(this.db, name, schedule, prompt, channel, sessionId);
+    return _saveCronJob(this.db, name, schedule, prompt, channel, sessionId, jobType);
   }
 
   getCronJobs(enabledOnly: boolean = true): CronJob[] {

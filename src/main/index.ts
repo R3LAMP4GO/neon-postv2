@@ -30,6 +30,7 @@ import {
   registerMiscIPC,
   registerSocialIpc,
   registerArticleSourcesIPC,
+  ensurePendingCleanupCron,
   registerCompositorIpc,
   wireIosChannelHandlers,
 } from './ipc';
@@ -1001,6 +1002,9 @@ async function initializeAgent(): Promise<void> {
     if (birthday) {
       await setupBirthdayCronJobs(birthday, scheduler);
     }
+
+    // Ensure the pending-drafts cleanup cron exists (idempotent)
+    await ensurePendingCleanupCron(buildIPCDeps());
   }
 
   // Initialize Telegram

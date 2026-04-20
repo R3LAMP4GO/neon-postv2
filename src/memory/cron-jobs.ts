@@ -1,5 +1,7 @@
 import Database from 'better-sqlite3';
 
+export type CronJobType = 'routine' | 'reminder' | 'article-scrape' | 'article-pending-cleanup';
+
 export interface CronJob {
   id: number;
   name: string;
@@ -14,7 +16,7 @@ export interface CronJob {
   context_messages?: number;
   next_run_at?: string | null;
   session_id?: string | null;
-  job_type?: 'routine' | 'reminder';
+  job_type?: CronJobType;
 }
 
 /**
@@ -26,18 +28,20 @@ export function saveCronJob(
   schedule: string,
   prompt: string,
   channel: string = 'default',
-  sessionId: string = 'default'
+  sessionId: string = 'default',
+  jobType: CronJobType = 'routine'
 ): number {
   const stmt = db.prepare(`
-    INSERT INTO cron_jobs (name, schedule, prompt, channel, session_id)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO cron_jobs (name, schedule, prompt, channel, session_id, job_type)
+    VALUES (?, ?, ?, ?, ?, ?)
     ON CONFLICT(name) DO UPDATE SET
       schedule = excluded.schedule,
       prompt = excluded.prompt,
       channel = excluded.channel,
-      session_id = excluded.session_id
+      session_id = excluded.session_id,
+      job_type = excluded.job_type
   `);
-  const result = stmt.run(name, schedule, prompt, channel, sessionId);
+  const result = stmt.run(name, schedule, prompt, channel, sessionId, jobType);
   return result.lastInsertRowid as number;
 }
 
@@ -69,7 +73,7 @@ export function getCronJobs(db: Database.Database, enabledOnly: boolean = true):
     ...r,
     enabled: r.enabled === 1,
     delete_after_run: r.delete_after_run === 1,
-    job_type: (r.job_type || 'routine') as 'routine' | 'reminder',
+    job_type: (r.job_type || 'routine') as CronJobType,
   }));
 }
 
