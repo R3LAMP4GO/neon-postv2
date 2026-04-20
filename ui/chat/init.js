@@ -271,6 +271,14 @@ async function initializeChat() {
     });
   }
 
+  // Article source watcher events — refresh News Sources list on backend changes
+  if (window.neonPost.social?.onArticleSourceChanged) {
+    window.neonPost.social.onArticleSourceChanged((data) => {
+      console.log('[Chat] Article source changed:', data.action, data.sourceId);
+      if (typeof _socLoadSources === 'function') _socLoadSources();
+    });
+  }
+
   // Listen for post published by agent — show toast + refresh Posts/Calendar
   if (window.neonPost.social?.onPostPublished) {
     window.neonPost.social.onPostPublished((data) => {
