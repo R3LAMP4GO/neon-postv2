@@ -19,7 +19,7 @@ export function registerCronIPC(deps: IPCDependencies): void {
       sessionId: string
     ) => {
       const scheduler = getScheduler();
-      const success = await scheduler?.createJob(
+      const result = await scheduler?.createJob(
         name,
         schedule,
         prompt,
@@ -32,7 +32,7 @@ export function registerCronIPC(deps: IPCDependencies): void {
       if (iosChannel) {
         iosChannel.broadcast({ type: 'routines', jobs: scheduler?.getAllJobs() || [] });
       }
-      return { success };
+      return { success: result?.success ?? false };
     }
   );
 

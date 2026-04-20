@@ -7,5 +7,8 @@ export { registerCronIPC } from './cron-ipc';
 export { registerIosIPC, wireIosChannelHandlers } from './ios-ipc';
 export { registerMiscIPC } from './misc-ipc';
 export { registerSocialIpc } from './social-ipc';
-export { registerArticleSourcesIPC } from './article-sources-ipc';
+export {
+  registerArticleSourcesIPC,
+  ensurePendingCleanupCron,
+} from './article-sources-ipc';
 export { registerCompositorIpc } from './compositor-ipc';

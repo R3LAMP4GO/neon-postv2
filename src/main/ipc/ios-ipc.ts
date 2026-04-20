@@ -223,7 +223,8 @@ export function wireIosChannelHandlers(deps: IPCDependencies): void {
 
   iosChannel.setRoutinesListHandler(() => getScheduler()?.getAllJobs() || []);
   iosChannel.setRoutinesCreateHandler(async (name, schedule, prompt, channel, sessionId) => {
-    return (await getScheduler()?.createJob(name, schedule, prompt, channel, sessionId)) || false;
+    const r = await getScheduler()?.createJob(name, schedule, prompt, channel, sessionId);
+    return r?.success ?? false;
   });
   iosChannel.setRoutinesDeleteHandler((name) => getScheduler()?.deleteJob(name) || false);
   iosChannel.setRoutinesToggleHandler(

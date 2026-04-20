@@ -1,7 +1,7 @@
 import cron, { ScheduledTask } from 'node-cron';
 import Database from 'better-sqlite3';
 import { AgentManager } from '../agent';
-import { MemoryManager, CronJob } from '../memory';
+import { MemoryManager, CronJob, type CronJobType } from '../memory';
 import type { TelegramBot } from '../channels/telegram';
 import { matchesCronField } from '../utils/cron';
 import { formatForSqlite, checkCalendarEvents, checkTaskReminders } from './calendar';
@@ -13,6 +13,10 @@ import {
   type ChatHandler,
   type IOSSyncHandler,
 } from './notifications';
+import {
+  runArticleScrapeJob,
+  runPendingCleanupJob,
+} from '../social/scraping/article-scrape-job';
 
 /**
  * Silent acknowledgment token for scheduled tasks.
@@ -244,6 +248,27 @@ export class CronScheduler {
               jobName: job.name,
             });
           }
+        } else if (job.job_type === 'article-scrape') {
+          // Article source watcher: scrape URL, queue pending drafts, silent.
+          if (!this.memory) {
+            throw new Error('Memory not initialized for article-scrape job');
+          }
+          const source = this.memory.articleSources.getByCronJobId(job.id);
+          if (!source) {
+            throw new Error(`No article_source linked to cron_job id=${job.id}`);
+          }
+          const r = await runArticleScrapeJob(this.memory, source.id);
+          response = r.error
+            ? `[article-scrape] error: ${r.error}`
+            : `[article-scrape] ${source.source_name}: +${r.itemsInserted} pending (${r.itemsScraped} scraped, ${r.itemsDeduped} deduped)`;
+          if (r.error) throw new Error(r.error);
+        } else if (job.job_type === 'article-pending-cleanup') {
+          // Periodic purge of pending drafts older than the TTL, silent.
+          if (!this.memory) {
+            throw new Error('Memory not initialized for cleanup job');
+          }
+          const r = runPendingCleanupJob(this.memory, now);
+          response = `[article-pending-cleanup] purged=${r.purged}`;
         } else {
           // Routines: call LLM with context
           let contextText = '';
@@ -304,10 +329,16 @@ export class CronScheduler {
           ).run(now.toISOString(), duration, nextRunAt, job.id);
         }
 
-        // Route response to the job's session
-        // For reminders, don't show prompt (the response IS the message)
-        const displayPrompt = job.job_type === 'reminder' ? '' : job.prompt;
-        await this.routeJobResponse(job.name, displayPrompt, response, job.channel, sessionId);
+        // System jobs (article-scrape, article-pending-cleanup) run silently —
+        // no user-facing notification. They update their own state via their
+        // domain tables and emit IPC events from there when needed.
+        const silentJobTypes = new Set(['article-scrape', 'article-pending-cleanup']);
+        if (!silentJobTypes.has(job.job_type || '')) {
+          // Route response to the job's session
+          // For reminders, don't show prompt (the response IS the message)
+          const displayPrompt = job.job_type === 'reminder' ? '' : job.prompt;
+          await this.routeJobResponse(job.name, displayPrompt, response, job.channel, sessionId);
+        }
 
         this.addToHistory({
           jobName: job.name,
@@ -649,13 +680,14 @@ export class CronScheduler {
     schedule: string,
     prompt: string,
     channel: string = 'default',
-    sessionId: string = 'default'
-  ): Promise<boolean> {
-    if (!this.memory) return false;
+    sessionId: string = 'default',
+    jobType: CronJobType = 'routine'
+  ): Promise<{ success: boolean; id?: number }> {
+    if (!this.memory) return { success: false };
 
     if (!cron.validate(schedule)) {
       console.error(`[Scheduler] Invalid cron: ${schedule}`);
-      return false;
+      return { success: false };
     }
 
     // Resolve session ID — if the given session doesn't exist, use first available
@@ -667,7 +699,14 @@ export class CronScheduler {
     }
 
     // Save to database
-    const id = this.memory.saveCronJob(name, schedule, prompt, channel, resolvedSessionId);
+    const id = this.memory.saveCronJob(
+      name,
+      schedule,
+      prompt,
+      channel,
+      resolvedSessionId,
+      jobType
+    );
 
     // Schedule it
     const job: ScheduledJob = {
@@ -681,7 +720,8 @@ export class CronScheduler {
       sessionId,
     };
 
-    return this.scheduleJob(job);
+    const success = this.scheduleJob(job);
+    return { success, id: success ? id : undefined };
   }
 
   /**

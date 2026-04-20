@@ -298,6 +298,14 @@ contextBridge.exposeInMainWorld('neonPost', {
         ipcRenderer.invoke('articleSources:update', id, input),
       delete: (id: string) => ipcRenderer.invoke('articleSources:delete', id),
       runNow: (id: string) => ipcRenderer.invoke('articleSources:runNow', id),
+      listPending: (sourceId: string) =>
+        ipcRenderer.invoke('articleSources:listPending', sourceId),
+      countPending: (sourceId: string) =>
+        ipcRenderer.invoke('articleSources:countPending', sourceId),
+      skipPending: (pendingId: string) =>
+        ipcRenderer.invoke('articleSources:skipPending', pendingId),
+      goPending: (pendingId: string, platform: string) =>
+        ipcRenderer.invoke('articleSources:goPending', pendingId, platform),
     },
     onArticleSourceChanged: (
       callback: (data: { action: 'created' | 'updated' | 'deleted'; sourceId: string }) => void
@@ -1037,10 +1045,28 @@ declare global {
           runNow: (id: string) => Promise<
             | {
                 success: true;
-                sourceType: 'article' | 'feed' | 'index';
-                items: Array<Record<string, unknown>>;
+                sourceType: 'article' | 'feed' | 'index' | 'unknown';
+                itemsScraped: number;
+                itemsDeduped: number;
+                itemsInserted: number;
               }
             | { success: false; error: string }
+          >;
+          listPending: (sourceId: string) => Promise<
+            | { success: true; items: Array<Record<string, unknown>> }
+            | { success: false; error: string }
+          >;
+          countPending: (
+            sourceId: string
+          ) => Promise<
+            { success: true; count: number } | { success: false; error: string }
+          >;
+          skipPending: (pendingId: string) => Promise<{ success: boolean; error?: string }>;
+          goPending: (
+            pendingId: string,
+            platform: string
+          ) => Promise<
+            { success: true; postId: string } | { success: false; error: string }
           >;
         };
         onArticleSourceChanged: (
